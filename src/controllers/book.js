@@ -1,5 +1,5 @@
 const bookModel = require('../models/book');
-const { getBooksFromServer, getSingleBookFromServer } = bookModel;
+const { getBooksFromServer, getSingleBookFromServer, findBook } = bookModel;
 
 const getAllbook = (_, res) => {
    getBooksFromServer()
@@ -20,11 +20,12 @@ const getAllbook = (_, res) => {
       });
 };
 
-const getBookById = (_, res) => {
-   getSingleBookFromServer(1)
-      .then((result) => {
+const getBookById = (req, res) => {
+   const id = req.params.id;
+   getSingleBookFromServer(id)
+      .then(({ data }) => {
          res.status(200).json({
-            data: result,
+            data,
             err: null,
          });
       })
@@ -37,7 +38,25 @@ const getBookById = (_, res) => {
       });
 };
 
+const findBookByQuery = (req, res) => {
+   findBook(req.query)
+      .then(({ data, total }) => {
+         res.status(200).json({
+            err: null,
+            data,
+            total,
+         });
+      })
+      .catch(({ status, err }) => {
+         res.status(status).json({
+            data: [],
+            err,
+         });
+      });
+};
+
 module.exports = {
    getAllbook,
    getBookById,
+   findBookByQuery,
 };
